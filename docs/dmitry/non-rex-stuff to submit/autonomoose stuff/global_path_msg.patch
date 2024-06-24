@@ -1,0 +1,13 @@
+diff --git a/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp b/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
+index 2d43c01..392b470 100644
+--- a/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
++++ b/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
+@@ -133,7 +133,7 @@ class LocalPlannerNodelet : public nodelet::Nodelet {
+      * The global path message callback function.
+      * @param[out] path  The global path message from the route publisher pkg
+      */
+-    void globalPathCb(const nav_msgs::PathConstPtr &path);
++    void globalPathCb(const nav_msgs::PathConstPtr &global_path);
+
+     /*!
+      * The ros point clouds data callback function.

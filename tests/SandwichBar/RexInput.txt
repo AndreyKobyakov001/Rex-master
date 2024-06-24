@@ -1,0 +1,3 @@
+add .
+generate
+output out

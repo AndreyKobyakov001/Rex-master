@@ -1,0 +1,210 @@
+// Previous Bugs: https://git.uwaterloo.ca/swag/Rex/-/issues/35
+
+#include <string>
+#include <memory>
+using namespace std;
+
+struct A {
+    int x;
+    A(int) {}
+};
+
+void f(string s1, string s2,
+       int a1, int a2,
+       int* b1, int* b2,
+       A* c1, A* c2,
+       A d1, A d2,
+       shared_ptr<int> e1, shared_ptr<int> e2,
+       A f1, A* f2,
+       int g1, int* g2,
+       int h1, shared_ptr<int> h2)
+{
+    // All of these should produce `varWrite` and `write`
+    a1 = a2;
+    b1 = b2;
+    c1 = c2;
+    d1 = d2;
+    e1 = e2;
+    f1 = *f2;
+    g1 = *g2;
+    h1 = *h2;
+    s1 = s2;
+}
+
+void moreComplex1(int a, int b, int c) {
+    // b,c -varWrite-> a
+    // f -read-> b, c
+    // f -write-> a
+    a = b + c;
+}
+void moreComplex2(int a, int b, int c) {
+    // b,c -varWrite-> a
+    // c -varWrite-> b [permissible false positive]
+    // f -read-> b, c
+    // f -write-> a
+    // f -write-> b [permissible false positive]
+    (a = b) = c;
+}
+void moreComplex3(int a, int b, int c) {
+    // Same as version 2, but also add a `f -read-> a`
+    (a += b) = c;
+struct A {
+    int x;
+    A* operator->() { return this; }
+
+    int y;
+    int z;
+
+    // This tests that the `this` operator produces a class ID (MyClass::mymem)
+    // Expected
+    // mem()::a -varWrite-> A::x
+    // A::z -varWrite-> A::y
+    // mem -write-> A::x, A::y
+    void mem(int a) {
+        this->x = a;
+        this->y = this->z;
+    }
+};
+
+namespace operatorArrow {
+
+struct A {
+    int x;
+    A* operator->() { return this; }
+
+    int y;
+    int z;
+
+    // This tests that the `this` operator produces a class ID (MyClass::mymem)
+    // Expected
+    // mem()::a -varWrite-> A::x
+    // A::z -varWrite-> A::y
+    void mem(int a) {
+        this->x = a;
+        this->y = this->z;
+    }
+};
+
+
+// Expected
+// aptr, A::x -varWrite-> var1
+// aval, A::x -varWrite-> var2
+void foo(A* aptr, A aval, int var1, int var2) {
+    var1 = aptr->x;
+    var2 = aval->x;
+}
+
+} // operatorArrow
+
+namespace arrays {
+
+    struct A {
+        int y;
+    };
+    struct B {
+        A as[3];
+        int ints[3];
+    };
+    // just_array -write-> as
+    // x -varWrite-> as
+    void just_array(int as[], int i, int x) {
+        as[i] = x;
+    }
+    // arrayexpr_lhs -write-> b, B::ints
+    // x -varWrite-> b, B::ints
+    void arrayexpr_lhs(B b, int i, int x) {
+        b.ints[i] = x;
+    }
+    // array_last_in_member -write-> as, A::y
+    // x -varWrite-> b, B::ints
+    void array_last_in_member(A as[], int i, int x) {
+        as[i].y = x;
+    }
+    // array_nested_in_member -write-> b, B::as, A::y
+    // x -varWrite-> b, B::as, A::y
+    void array_nested_in_member(B b, int i, int x) {
+        b.as[i].y = x;
+    }
+
+} // arrays
+
+namespace nested_member_access {
+    /// source
+    struct D {
+        int e;
+    };
+    struct C {
+        D* d;
+    };
+    struct B {
+        B* operator->() { return this; }
+        C c;
+    };
+    struct A {
+        B b;
+    };
+
+
+    /// destination
+    struct Z {
+        int zz;
+        void goo(int zz) {}
+    };
+    struct Y {
+        Z* z;
+    };
+    struct X {
+        X* operator->() { return this; }
+        Y y;
+    };
+    struct W {
+        X x;
+    };
+
+    // D::e -varWrite-> W::x, X::y, Y::z, Z::zz, w
+    // C::d -varWrite-> W::x, X::y, Y::z, Z::zz, w
+    // B::c -varWrite-> W::x, X::y, Y::z, Z::zz, w
+    // A::b -varWrite-> W::x, X::y, Y::z, Z::zz, w
+    // a -varWrite-> W::x, X::y, Y::z, Z::zz, w
+    // global -write-> W::x, X::y, Y::z, Z::zz, w
+    void global(W w, A a) {
+        w.x->y.z->zz = a.b->c.d->e;
+    }
+    // D::e -varWrite-> W::x, X::y, Y::z, Z::goo::zz, w
+    // C::d -varWrite-> W::x, X::y, Y::z, Z::goo::zz, w
+    // B::c -varWrite-> W::x, X::y, Y::z, Z::goo::zz, w
+    // A::b -varWrite-> W::x, X::y, Y::z, Z::goo::zz, w
+    // a -varWrite-> W::x, X::y, Y::z, Z::goo::zz, w
+    void global_parampass(W w, A a) {
+        w.x->y.z->goo(a.b->c.d->e);
+    }
+
+    struct Enclosing {
+        W w;
+
+        // D::e -varWrite-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        // C::d -varWrite-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        // B::c -varWrite-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        // A::b -varWrite-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        // a -varWrite-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        // binwrite -write-> W::x, X::y, Y::z, Z::zz, Enclosing::w
+        void binwrite(A a) {
+            this->w.x->y.z->zz = a.b->c.d->e;
+        }
+        // D::e -varWrite-> W::x, X::y, Y::z, Z::goo::zz, Enclosing::w
+        // C::d -varWrite-> W::x, X::y, Y::z, Z::goo::zz, Enclosing::w
+        // B::c -varWrite-> W::x, X::y, Y::z, Z::goo::zz, Enclosing::w
+        // A::b -varWrite-> W::x, X::y, Y::z, Z::goo::zz, Enclosing::w
+        // a -varWrite-> W::x, X::y, Y::z, Z::goo::zz, Enclosing::w
+        void parampass(A a) {
+            this->w.x->y.z->goo(a.b->c.d->e);
+        }
+    };
+
+    // unary -write-> W::x, X::y, Y::z, Z::zz, w
+    void unary(W w) {
+        ++(w.x->y.z->zz);
+    }
+
+} // nested_member_access
+

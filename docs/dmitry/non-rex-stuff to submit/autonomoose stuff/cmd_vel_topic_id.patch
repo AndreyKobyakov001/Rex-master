@@ -1,0 +1,13 @@
+diff --git a/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp b/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
+index 8368850..2236945 100644
+--- a/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
++++ b/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
+@@ -447,7 +447,7 @@ void VehicleControlNodelet::initController(ros::NodeHandle n) {
+     this->pub_steering =
+       n.advertise<dbw_mkz_msgs::SteeringCmd>("vehicle/steering_cmd", 1);
+     this->pub_gear = n.advertise<dbw_mkz_msgs::GearCmd>("vehicle/gear_cmd", 1);
+-    this->pub_cmd_vel = n.advertise<std_msgs::Float32>("cmd_vel", 1);
++    this->pub_cmd_vel = n.advertise<std_msgs::Float32>("vehicle/cmd_vel", 1);
+     this->pub_ctrl_cmds =
+       n.advertise<anm_msgs::ControlCommands>("control_commands", 1);
+     this->pub_pose_path_state = n.advertise<std_msgs::Bool>("nav_pt_avail", 1);

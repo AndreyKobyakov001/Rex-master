@@ -1,0 +1,332 @@
+% Style Sheet for Document.
+% Adapted from Overleaf template.
+%https://www.overleaf.com/latex/templates/assessment-report/hgqqnkgvsmty#.WhIQ-nUrKV5
+\input{StylePreamble}
+
+\begin{document}
+
+\coverpage{Fact Extractor Manual}
+
+\section{Installing Rex}
+
+Rex is a C++ fact extractor that utilizes the clang AST to generate "facts" from
+C++ source files. This section will provide information that installs the
+required libraries and tools used to install the Rex extractor. Before Rex can
+be built, it requires the following to be installed on the target system:
+\textbf{CMake} 3.0.0 or greater, \textbf{Boost} 1.69 or greater,
+\textbf{LibSSL}, and \textbf{Clang} 8.0.0. CMake is used to build Rex, Boost is
+a collection of C++ libraries that is used to process command line arguments and
+directory information, and Clang is used to obtain AST information about the
+source code currently being processed. The Clang API provides methods for
+operating on C++ language features and carries out the brunt of the C++
+analysis.
+
+The remainder of this section provides information on how to install these
+required libraries and how to build Rex from source. These instructions are for
+Linux-based systems. Section \ref{sec:CRPre} describes how to install CMake,
+Boost, and Clang. If any of these are already installed on the target system, it
+can be skipped. Section \ref{sec:RexBuild} describes how to build Rex from
+source.
+
+If you find any errors in this document or if the steps do not work, please
+report what you find to someone working on the project. If you yourself work on
+the project, please fix whatever you find. The source code for these
+instructions can be found in the \texttt{docs/} directory of the Rex repository.
+
+\subsection{Prerequisites}
+\label{sec:CRPre}
+\paragraph{CMake}
+
+If using a Ubuntu or Debian-based system, installing CMake is as simple as using
+\texttt{apt-get}. This is done using the following two commands:
+
+\begin{lstlisting}[language=bash]
+  	$ sudo apt-get install cmake
+	$ cmake --version
+\end{lstlisting}
+
+\noindent Using \texttt{apt-get} might not install the latest version of CMake.
+However, as long as it installs a version of CMake greater than \texttt{3.0.0},
+it can be used to build ClangEx and Rex. If this is the case, proceed to the
+Boost installation instructions.
+
+If this method did not work, CMake must be built from source. To do this, the
+latest version of CMake source needs to be downloaded from the CMake website,
+compiled, and then installed. This guide provides instructions on how to build
+CMake \texttt{3.7.0} from source. The first step is to download the CMake source
+code and unzip it. This can be from the command line using the following
+commands:
+
+\begin{lstlisting}[language=bash]
+	$ wget https://cmake.org/files/v3.7/cmake-3.7.0.tar.gz
+	$ tar xvzf cmake-3.7.0.tar.gz
+	$ cd cmake-3.7.0
+\end{lstlisting}
+
+\noindent Once in the \texttt{cmake-3.7.0} directory, CMake can be configured
+and install on the target system. This process may take several minutes. To do
+this, use the following commands:
+
+\begin{lstlisting}[language=bash]
+	$ ./configure
+	$ make
+	$ make install
+	$ cmake --version
+\end{lstlisting}
+
+\noindent If these steps completed successfully, CMake is now installed and
+ready for use.
+
+\paragraph{Boost}
+
+Do \textbf{not} install Boost using the \texttt{apt-get} package manager. The
+version of Boost provided is not guaranteed to be up to date and can otherwise
+cause you many problems. Instead, visit the Boost downloads website and download
+the Boost 1.69 source code.
+
+\bigskip
+Boost Downloads Page: \url{https://www.boost.org/users/download/}
+\bigskip
+
+\noindent Then, extract the files into a \texttt{boost\_1\_69\_0} directory and
+run the following commands:
+
+\begin{lstlisting}[language=bash]
+	$ cd path/to/boost_1_69_0
+	$ ./bootstrap.sh
+	$ ./b2
+\end{lstlisting}
+
+\noindent This will build Boost 1.69 in that directory, and otherwise leave your
+system untouched.
+
+\paragraph{Clang}
+
+Although Clang exists as a package that can be installed using \texttt{apt-get}, it needs
+to be installed from source to take advantage of Clang’s API. To do this,
+source code needs to be checked out from the official Clang repository, compiled,
+and then installed. The first step is to checkout the Clang source code.
+This can be done by executing the following:
+
+\begin{lstlisting}[language=bash]
+$ wget releases.llvm.org/8.0.0/llvm-8.0.0.src.tar.xz
+$ tar xf llvm-8.0.0.src.tar.xz
+$ wget releases.llvm.org/8.0.0/cfe-8.0.0.src.tar.xz
+$ tar xf cfe-8.0.0.src.tar.xz && mv cfe-8.0.0.src llvm-8.0.0.src/tools/clang
+$ wget releases.llvm.org/8.0.0/clang-tools-extra-8.0.0.src.tar.xz
+$ tar xf clang-tools-extra-8.0.0.src.tar.xz 
+$ mv clang-tools-extra-8.0.0.src llvm-8.0.0.src/tools/clang/tools/extra
+\end{lstlisting}
+
+These commands will download the LLVM and Clang source code to a directory called
+llvm-8.0.0.src in the current working directory. Clang can now be built. This process
+can take up to several hours and uses a large amount of RAM and disk space (make
+sure you have enough swap space). This guide shows how to build Clang in a
+directory called Clang-Build that is adjacent to the llvm-8.0.0.src directory. To use
+another directory, simply replace the Clang-Build string in the following
+commands with another directory name.
+
+The following commands build Clang in the Clang-Build directory:
+
+\begin{lstlisting}[language=bash]
+$ mkdir Clang-Build
+$ cd Clang-Build
+$ cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_RTTI=ON ../llvm-8.0.0.src
+$ make
+$ sudo make install
+\end{lstlisting}
+
+Once these steps have been completed, Clang and LLVM have been installed.
+By typing clang --version, Clang should report that it is version 8.0.
+
+\subsection{Building Rex}
+\label{sec:RexBuild}
+
+To build Rex, the source code needs to be checked out from the Rex git
+repository and then built using CMake. If Rex fails to build, first ensure that
+all tools and libraries installed in the previous section are present on the
+target system.
+
+To download Rex, you first need to checkout the source code. Run the \texttt{git
+clone} command to download the repository into a directory called \texttt{Rex}.
+Before checking out the repository, ensure that you are in a directory where you
+want to install Rex.
+
+\bigskip
+
+\noindent Next, before Rex can be built, three environment variables must be
+set:
+
+\begin{itemize}
+  \item \texttt{LLVM\_PATH} should be set to the \texttt{clang\_llvm\_8.0.0} directory
+  \item \texttt{CLANG\_VER} should be set to the string \texttt{8.0.0}
+  \item \texttt{BOOST\_ROOT} should be set to the \texttt{boost\_1\_69\_0} directory
+\end{itemize}
+
+\noindent To set these variables, open up \texttt{.bashrc} located in the home
+directory and add the following lines to the bottom of the file:
+
+\begin{lstlisting}[language=bash]
+	$ export LLVM_PATH=<PATH_TO_clang_llvm_8.0.0>
+	$ export CLANG_VER=8.0.0
+	$ export BOOST_ROOT=<PATH_TO_boost_1_69_0>
+\end{lstlisting}
+
+\noindent Restart the terminal to ensure these variables have been exported.
+
+\bigskip
+
+\noindent The next step is to build Rex. These steps install Rex in a directory
+called \texttt{Rex-Build} adjacent to the \texttt{Rex} directory. To install it
+somewhere else, simply replace the \texttt{Rex-Build} string in the following
+commands with a desired directory name. The following steps install Rex in the
+\texttt{Rex-Build} directory:
+
+\begin{lstlisting}[language=bash]
+	$ cd Rex-Build
+	$ cmake -G "Unix Makefiles" ../Rex
+	$ make -j 8
+\end{lstlisting}
+
+\noindent By running these commands, CMake will build the source code and an
+executable called \textit{Rex} will be created inside the \texttt{Rex-Build}
+directory. To verify that Rex built correctly, run:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex --help
+\end{lstlisting}
+
+\noindent If Rex built, this command will run the Rex executable and print out
+some help information about the kinds of arguments you can pass to Rex. Now, Rex
+is ready to process C++ source files and generate tuple-attribute models!
+
+\section{Using Rex}
+
+Rex is a command line tool. This section describes the various ways you can
+configure it using arguments passed to the \texttt{Rex} executable built in the
+previous section.
+
+\subsection{Separate Compilation}
+
+To run Rex, pass in one or more source files or directories that you would like
+it to analyze. For directories, Rex will recursively search for both CPP source
+files and header files. All common C++ file extensions are supported. Here's an
+example:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp foo2.cpp bar/
+\end{lstlisting}
+
+\noindent Rex will run clang on both \texttt{foo.cpp} and \texttt{foo2.cpp}. It
+will also walk the \texttt{bar} directory recursively looking for both source
+files and header files. All files found will be analyzed as well.
+
+\bigskip
+
+\noindent To run multiple analyses in parallel, pass in the \texttt{--jobs} flag
+(abbreviated \texttt{-j}) as shown below:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp foo2.cpp bar/ -j 8
+\end{lstlisting}
+
+\noindent This will usually result in a faster analysis because Rex can analyse
+multiple source files at once.
+
+\bigskip
+
+By default, Rex will analyse these files, but not attempt to link together the
+results in any way. This enables us to do separate compilation and optimize
+re-running Rex when only a few files have changed. The results of the analysis
+of each file are stored in ``TA Object Files''. You can find those files in the
+directory where you ran Rex. Each file will have the \texttt{.tao} file
+extension. This is a custom, Rex-specific file format that is specially designed
+to make the linking process fast.
+
+\bigskip
+
+One caveat to be aware of: Most files require at least some compiler flags in
+order for clang to be able to compile them. The way these flags are discovered
+is with a special file called a compilation database. If the project being
+processed uses any compiler flags, a compilation database will need to be
+generated for that project and placed in the root directory of all the project
+source files. All files being analyzed by Rex must either be in the same
+directory as the database or in some descendant directory. A compilation
+database is a JSON file that has an entry for \textbf{each} file that Rex will
+analyze. If a file is not present in that database, Rex may fail to analyze that
+file at all. If a compilation database does not exist, Rex will show a warning
+and attempt to proceed without it.
+
+\subsection{Linking}
+
+To produce a TA file from the generated \texttt{.tao} files, pass the
+\texttt{--output} flag (abbreviated \texttt{-o}) as shown below:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp foo2.cpp bar/ -j 8 -o bar.ta
+\end{lstlisting}
+
+\noindent This will analyze each file, generate \texttt{.tao} files for each,
+and link them together to produce a TA file with the filename \texttt{bar.ta}.
+If you have already generated  the \texttt{.tao} files and do not want to re-run
+the analysis, you can pass those directly as well:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex *.tao -o bar.ta
+\end{lstlisting}
+
+\noindent Rex even supports a mix of source file/directory arguments and
+\texttt{.tao} file arguments:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp.tao foo2.cpp bar/ -j 8 -o bar.ta
+\end{lstlisting}
+
+\noindent In this case, the \texttt{.tao} file arguments will only be used
+during linking and the other provided files/directories will be analyzed and
+linked as would be normally expected.
+
+You can mix and match these styles of passing arguments to optimize your run of
+Rex so that it only ever analyses the source files you want it to. This style of
+command line arguments is similar to what you may be used to with most
+compilers.
+
+\subsection{Including Files in the Analysis}
+
+Rex will not analyze any files that you do not provide as arguments. That means
+that if you are passing individual files into Rex, you will often need to
+provide \textbf{both} the CPP source file and the associated header file in
+order to get any results:
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp foo.h -j 8 -o bar.ta
+\end{lstlisting}
+
+\noindent If you omit the header file, you may find that the generated TA file
+is empty or far smaller than you expected. The reason for this is because most
+declarations are in header files and Rex needs to analyze those header files in
+order to be able to link their declarations.
+
+If you use a directory instead, Rex will take care of picking up both types of
+files automatically. That is usually the preferred method of using Rex unless
+you are trying to diagnose a specific problem or otherwise need to narrow down
+the analysis to specific files.
+
+It's not that the source file and header file need to be run in the same
+command. The only requirement is that when linking into a TA file, the
+\texttt{.tao} file for both the source and the header are included.
+
+\begin{lstlisting}[language=bash]
+	$ ./Rex foo.cpp
+	$ ./Rex foo.h
+	$ ./Rex foo.cpp.tao foo.h.tao -o bar.ta
+\end{lstlisting}
+
+\noindent A great consequence of this slightly unconventional setup is that only
+the files we intend to be included are included in our analysis. That means that
+system files are completely ignored unless we explicitly pass their
+files/directories into Rex.  Automatically detecting the header files associated
+with a given source file is non-trivial in C++. This solution gives us
+flexibility without too much added complexity.
+
+\end{document}

@@ -1,0 +1,55 @@
+diff --git a/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp b/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
+index 8368850..8a87b28 100644
+--- a/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
++++ b/rospackages/autonomoose_core/vehicle_control/src/vehicle_control_nodelet.cpp
+@@ -1026,28 +1026,28 @@ void VehicleControlNodelet::GearCb(const dbw_mkz_msgs::GearReport &msg) {
+ void VehicleControlNodelet::WheelSpeedCb(
+   const dbw_mkz_msgs::WheelSpeedReport::ConstPtr &msg) {
+     if (false /*this->use_wheel_speeds*/) {
+-        // Extract wheel speed (rad/s), and average the values
+-        double ang_vel = (msg->front_left + msg->front_right) / 2.0;
+-        double vehicle_speed = ang_vel * this->tire_radius;
+-
+-        // If in tuning mode, obtain and publish measured acceleration
+-        if (this->tuning) {
+-            // Compute vehicle acceleration based on previous value (1D
+-            // discrete)
+-            double raw_accel =
+-              this->control_rate * (vehicle_speed - this->actual.linear.x);
+-            this->lpf_accel.filt(raw_accel);  // Acceleration filter
+-
+-            // Obtain filtered acceleration
+-            std_msgs::Float64 accel_msg;
+-            accel_msg.data = this->lpf_accel.get();
+-
+-            // Publish acceleration for tuning
+-            this->pub_accel.publish(accel_msg);
+-        }
+-
+-        // Store last speed value
+-        this->actual.linear.x = vehicle_speed;
++        // // Extract wheel speed (rad/s), and average the values
++        // double ang_vel = (msg->front_left + msg->front_right) / 2.0;
++        // double vehicle_speed = ang_vel * this->tire_radius;
++        //
++        // // If in tuning mode, obtain and publish measured acceleration
++        // if (this->tuning) {
++        //     // Compute vehicle acceleration based on previous value (1D
++        //     // discrete)
++        //     double raw_accel =
++        //       this->control_rate * (vehicle_speed - this->actual.linear.x);
++        //     this->lpf_accel.filt(raw_accel);  // Acceleration filter
++        //
++        //     // Obtain filtered acceleration
++        //     std_msgs::Float64 accel_msg;
++        //     accel_msg.data = this->lpf_accel.get();
++        //
++        //     // Publish acceleration for tuning
++        //     this->pub_accel.publish(accel_msg);
++        // }
++        //
++        // // Store last speed value
++        // this->actual.linear.x = vehicle_speed;
+     }
+ }
+

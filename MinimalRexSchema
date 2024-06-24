@@ -1,0 +1,100 @@
+//Minimal Rex Extraction
+//Author: Bryan J Muscedere
+
+SCHEME TUPLE :
+//Nodes
+$INHERIT	cArchitecturalNds	cRoot
+$INHERIT	cAsgNds			cRoot
+$INHERIT	rosMsg			cRoot
+$INHERIT	cComponent		cAsgNds
+$INHERIT	cClass			cAsgNds
+$INHERIT	rosTopic		rosMsg
+$INHERIT	rosPublisher		rosMsg
+$INHERIT	rosSubscriber		rosMsg
+$INHERIT	rosNodeHandle		rosMsg
+$INHEIRT	rosTimer		rosMsg
+
+//Relationships
+compContain	cComponent	cClass
+contain		cRoot		cRoot
+publish		rosPublisher	rosTopic
+subscribe	rosTopic	rosSubscriber
+reference	rosNodeHandle	rosMsg
+advertise	rosPublisher	rosTopic
+subscribe	rosSubscriber	rosTopic
+
+SCHEME ATTRIBUTE :
+$ENTITY {
+	x
+	y
+	width
+	height
+	label
+}
+
+cRoot {
+	elision = contain
+	color = (0.0 0.0 0.0)
+	file
+	line
+	name
+}
+
+cAsgNds {
+	beg
+	end
+	file
+	line
+	value
+	color = (0.0 0.0 0.0)
+}
+
+cArchitecturalNds {
+	class_style = 4
+	color = (0.0 0.0 1.0)
+	color = (0.0 0.0 0.0)
+}
+
+rosMsg {
+	class_style = 4
+	color = (0.0 0.0 1.0)
+}
+
+cComponent {
+	color = (0.7 0.3 0.1)
+	labelcolor = (0.0 0.0 0.0)
+	class_style = 2
+}
+
+cClass {
+	filename
+	baseNum
+	color = (0.2 0.4 0.1)
+	labelcolor = (0.0 0.0 0.0)
+	class_style = 2
+}
+
+rosSubscriber {
+	color = (0.4 1.0 0.4)
+	labelcolor = (0.0 0.0 0.0)
+	class_style = 6
+	bufferSize
+	numAttributes
+	rosNumber	
+	callbackFunc
+}
+
+rosPublisher {
+	color = (1.0 0.0 0.8)
+	labelcolor = (1.0 1.0 1.0)
+	class_style = 6
+	numAttributes
+	rosNumber
+}
+
+rosTopic {
+	color = (1.0 1.0 0.6)
+	labelcolor = (0.0 0.0 0.0)
+	class_style = 5
+}
+

@@ -1,0 +1,13 @@
+diff --git a/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp b/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
+index 2d43c01..c215bd0 100644
+--- a/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
++++ b/rospackages/autonomoose_core/local_planner/include/local_planner/local_planner_nodelet.hpp
+@@ -121,7 +121,7 @@ class LocalPlannerNodelet : public nodelet::Nodelet {
+      * @brief Occupancy grid map callback function.
+      * @param gridMap Occupancy grid map provided by the perception server.
+      */
+-    void gridMapCb(const nav_msgs::OccupancyGridConstPtr &gridMap);
++    void gridMapCb(const nav_msgs::OccupancyGridConstPtr &gridmap);
+     /*!
+      * The vehicle state synchronization callback function.
+      * @param[in] state Vehicle state from ekf

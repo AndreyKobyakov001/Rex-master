@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+BinPackParameters: false
+AlignAfterOpenBracket: AlwaysBreak
+IndentWidth: 4
+ColumnLimit: 0
+AllowShortCaseLabelsOnASingleLine: true
+IndentCaseLabels: true
