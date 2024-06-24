@@ -792,7 +792,7 @@ void ParentWalker::recordVarDecl(const VarDecl *decl) {
         string name = generateName(decl);
 
          // Extract the line number
-        SourceLocation loc = decl->getLocation(); //NEW
+        SourceLocation loc = decl->getLocation(); //NEW!
         SourceManager &sm = decl->getASTContext().getSourceManager(); //NEW
         int lineNumber = sm.getSpellingLineNumber(loc); //NEW
 
@@ -814,7 +814,7 @@ void ParentWalker::recordVarDecl(const VarDecl *decl) {
         // Get the parent.
         addParentRelationship(decl, id);
 
-        varWriteLineNumbers[id] = lineNumber; //NEW
+        varWriteLineNumbers[id] = lineNumber; //NEW!
 
         CXXRecordDecl* classType = decl->getCanonicalDecl()->getType().getTypePtr()->getAsCXXRecordDecl();
         if(classType)
