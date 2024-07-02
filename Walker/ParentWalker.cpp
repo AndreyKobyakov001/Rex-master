@@ -790,12 +790,6 @@ void ParentWalker::recordVarDecl(const VarDecl *decl) {
         // Generates some fields.
         string id = generateID(decl);
         string name = generateName(decl);
-
-         // Extract the line number
-        SourceLocation loc = decl->getLocation(); //NEW!
-        SourceManager &sm = decl->getASTContext().getSourceManager(); //NEW
-        int lineNumber = sm.getSpellingLineNumber(loc); //NEW
-
         // Creates the node.
         RexNode *node = specializedVariableNode(decl, isInMainFile(decl));
         node->addSingleAttribute(TASchemeAttribute::LABEL, name);
@@ -813,8 +807,6 @@ void ParentWalker::recordVarDecl(const VarDecl *decl) {
         addNodeToGraph(node);
         // Get the parent.
         addParentRelationship(decl, id);
-
-        varWriteLineNumbers[id] = lineNumber; //NEW!
 
         CXXRecordDecl* classType = decl->getCanonicalDecl()->getType().getTypePtr()->getAsCXXRecordDecl();
         if(classType)
@@ -1667,16 +1659,21 @@ NamedDecl *ParentWalker::getParentVariable(const Expr *callExpr) {
 void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                                           const std::set<std::string>& lhs,
                                           const std::set<std::string>& rhs) {
-    if (decl == nullptr || !langFeats.cFunction || !langFeats.cVariable)
+    if (decl == nullptr || !langFeaddAttributeaddAttributeats.cFunction || !langFeats.cVariable)
         return;
 
     assert(curDflowStmt);
-
 
     std::string cfgNodeID{};
     if ((canBuildCFG()) && (cfgModel->hasStmt(curDflowStmt))) {
         cfgNodeID = cfgModel->getCFGNodeID(curDflowStmt);
     }
+
+//Extract line number here using SourceManager or GetContext
+    int line_number = Context->getSourceManager().getSpellingLineNumber(curDflowStmt->getBeginLoc());
+//or something of that sort
+
+//d'apres curDflowStmt->getBeginLoc().print(llvm::errs(), Context->getSourceManager()); on L1723.
 
     string functionID = generateID(decl);
     for (const auto &var : lhs) {
@@ -1694,7 +1691,12 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                 addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
             } else {
                 // auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+                
                 addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+                
+                  //addAttribute of extracted line number here 
+                edge->addAttribute("line number", std::to_string(line_number)); //NEW!
+                //Possibly store line number in a mapping also?
             }
 
 
