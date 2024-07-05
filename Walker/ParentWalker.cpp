@@ -1659,7 +1659,10 @@ NamedDecl *ParentWalker::getParentVariable(const Expr *callExpr) {
 void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                                           const std::set<std::string>& lhs,
                                           const std::set<std::string>& rhs) {
-    if (decl == nullptr || !langFeaddAttributeaddAttributeats.cFunction || !langFeats.cVariable)
+    // if (decl == nullptr || !langFeaddAttributeaddAttributeats.cFunction || !langFeats.cVariable)
+    //     return; --NOT WORKING
+
+    if (decl == nullptr || !langFeats.cFunction || !langFeats.cVariable)
         return;
 
     assert(curDflowStmt);
