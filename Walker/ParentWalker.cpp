@@ -1674,6 +1674,7 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
 
 //Extract line number here using SourceManager or GetContext
     int line_number = Context->getSourceManager().getSpellingLineNumber(curDflowStmt->getBeginLoc());
+    llvm::errs() << "Extracted line number: " << line_number << "\n";  // Debugging statement
 //or something of that sort
 
 //d'apres curDflowStmt->getBeginLoc().print(llvm::errs(), Context->getSourceManager()); on L1723.
@@ -1693,14 +1694,15 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
             if (isReturnID(rhsItem)) {
                 addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
             } else {
-                // auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
                 
-                addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+	//                addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
                 
                   //addAttribute of extracted line number here 
-                edge->addAttribute("line number", std::to_string(line_number)); //NEW!
+                edge->addMultiAttribute("LINE NUMBER: ", std::to_string(line_number)); //NEW!
                 //Possibly store line number in a mapping also?
-            }
+            	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
+        }
 
 
 

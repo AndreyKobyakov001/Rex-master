@@ -28,7 +28,9 @@ endif()
 link_directories(${LLVM_PATH}/lib)
 include_directories(${LLVM_PATH}/include)
 
-set(CLANG_INCLUDE_DIR ${LLVM_PATH}/lib/clang/${CLANG_VER}/include)
+# set(CLANG_INCLUDE_DIR ${LLVM_PATH}/lib/clang/${CLANG_VER}/include)
+set(CLANG_INCLUDE_DIR "/home/andrey/Clang-Build/lib64/clang/8.0.0/include")  # Update with the correct path
+# set(REX_INCLUDE_DIR "/home/andrey/Rex-master/include")
 
 add_definitions(
     -D__STDC_LIMIT_MACROS
