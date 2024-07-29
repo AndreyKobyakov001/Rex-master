@@ -46,7 +46,8 @@ CSVWriter::CSVWriter(std::ostream &nodes, std::ostream &edges)
           << "\t"
           << ":END_ID"
           << "\t"
-          << ":TYPE";
+          << ":TYPE"
+	  << ":LINE_NUMBER";
     for (auto &attr : allEdgeAttrs) {
       edges << "\t"
             << attr.first;

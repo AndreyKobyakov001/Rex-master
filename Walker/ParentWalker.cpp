@@ -1656,28 +1656,31 @@ NamedDecl *ParentWalker::getParentVariable(const Expr *callExpr) {
 
 }
 
+std::string getLastElement(const std::string& input) {
+    std::istringstream stream(input);
+    std::string word;
+    std::string lastWord;
+
+    while (stream >> word) {
+        lastWord = word;
+    }
+
+    return lastWord;
+}
+
 void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                                           const std::set<std::string>& lhs,
                                           const std::set<std::string>& rhs) {
-    // if (decl == nullptr || !langFeaddAttributeaddAttributeats.cFunction || !langFeats.cVariable)
-    //     return; --NOT WORKING
-
     if (decl == nullptr || !langFeats.cFunction || !langFeats.cVariable)
         return;
 
     assert(curDflowStmt);
+    int line_number = Context->getSourceManager().getSpellingLineNumber(curDflowStmt->getBeginLoc());
 
     std::string cfgNodeID{};
     if ((canBuildCFG()) && (cfgModel->hasStmt(curDflowStmt))) {
         cfgNodeID = cfgModel->getCFGNodeID(curDflowStmt);
     }
-
-//Extract line number here using SourceManager or GetContext
-    int line_number = Context->getSourceManager().getSpellingLineNumber(curDflowStmt->getBeginLoc());
-    llvm::errs() << "Extracted line number: " << line_number << "\n";  // Debugging statement
-//or something of that sort
-
-//d'apres curDflowStmt->getBeginLoc().print(llvm::errs(), Context->getSourceManager()); on L1723.
 
     string functionID = generateID(decl);
     for (const auto &var : lhs) {
@@ -1694,15 +1697,11 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
             if (isReturnID(rhsItem)) {
                 addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
             } else {
-                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
-                
-	//                addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
-                
-                  //addAttribute of extracted line number here 
-                edge->addMultiAttribute("LINE NUMBER: ", std::to_string(line_number)); //NEW!
-                //Possibly store line number in a mapping also?
-            	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
-        }
+	       auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+	       edge->RexEdge::addSingleAttribute("NUMBER: ", std::to_string(line_number));    
+            // auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+                addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+            }
 
 
 
@@ -1722,7 +1721,7 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                         addOrUpdateEdge(rhsItem, cfgNodeID, RexEdge::VW_SOURCE);
                         addOrUpdateEdge(var, cfgNodeID, RexEdge::VW_DESTINATION);
                     }
-                    
+
                 } else {
                     cerr << "Rex Warning: Could not find a mapping from statement to CFG block for varWrite/retWrite facts. ";
                     curDflowStmt->getBeginLoc().print(llvm::errs(), Context->getSourceManager());
@@ -1733,7 +1732,6 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
         }
     }
 }
-
 void ParentWalker::recordParameterWrite(const FunctionDecl *calledFn,
                                         const std::string& param,
                                         const std::set<std::string>& rhs) {
