@@ -40,6 +40,7 @@ public:
     static constexpr const char* ROS_TIMER_IS_ONESHOT="isOneshot";
     static constexpr const char* ROS_TOPIC_BUFFER_SIZE="bufferSize";
     static constexpr const char* PRESENCE_CONDITION="condition";
+    static constexpr const char* LINE_NUMBER="number";
 
     struct TAAttribute {
         // Name of the attribute, must be non-empty
