@@ -84,6 +84,7 @@ const char *RexEdge::typeToString(RexEdge::EdgeType type) {
         case SUB_DESTINATION: return "subscribeDestination";
         case PUB_SOURCE: return "publishSource";
         case PUB_DESTINATION: return "publishDestination";
+//	case LINE_NUMBER: return "lineNumber";
         // No default case because we want the compiler to warn us when this
         // enum changes and a case isn't covered
 
@@ -141,6 +142,7 @@ RexEdge::EdgeType RexEdge::stringToType(const std::string &s) {
     else if (s == "subscribeDestination") return SUB_DESTINATION;
     else if (s == "publishSource") return PUB_SOURCE;
     else if (s == "publishDestination") return PUB_DESTINATION;
+//    else if (s == "lineNumber") return LINE_NUMBER;	    
     else throw domain_error("Unknown edge type");
 }
 

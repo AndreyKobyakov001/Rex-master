@@ -210,6 +210,12 @@ const vector<TASchemeAttribute> &TASchemeAttribute::allEdgeAttrs() {
                 {NO_DEF, "0"}
             }
         ),*/
+	TASchemeAttribute(
+	    RexEdge::VAR_WRITES,
+	    {
+		{LINE_NUMBER}
+	    }
+	),
         TASchemeAttribute(
             RexEdge::PUBLISH,
             {

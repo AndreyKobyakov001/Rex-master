@@ -184,7 +184,9 @@ void writeEdgeScheme(std::ostream &out) {
             case RexEdge::PUB_DESTINATION:
                 left = RexNode::TOPIC; right = RexNode::CFG_BLOCK;
                 break;
-
+//	    case RexEdge::LINE_NUMBER:
+//		left = RexNode::VARIABLE; right = RexNode::VARIABLE;
+//		break;
             // No default case because we want the compiler to warn us when this
             // enum changes and a case isn't covered
 

@@ -1700,7 +1700,8 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                 
                   //addAttribute of extracted line number here 
                 //edge->addMultiAttribute("NUMBER: ", std::to_string(line_number)); //NEW!
-		edge->RexEdge::addSingleAttribute(TASchemeAttribute::LINE_NUMBER, std::to_string(line_number));                
+		edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));                
+//		addOrUpdateEdge(rhsItem, var, RexEdge::LINE_NUMBER);
 //Possibly store line number in a mapping also?
             	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
         }

@@ -85,6 +85,7 @@ class RexEdge {
         SUB_DESTINATION,
         PUB_SOURCE,
         PUB_DESTINATION,
+//	LINE_NUMBER,
         // This must always be the last variant. It is used to help us know how
         // many edges types there are when we output the TA schema.
         NUM_EDGE_TYPES
