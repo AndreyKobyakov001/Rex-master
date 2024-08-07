@@ -216,6 +216,16 @@ const vector<TASchemeAttribute> &TASchemeAttribute::allEdgeAttrs() {
 		{LINE_NUMBER}
 	    }
 	),
+
+
+ 	TASchemeAttribute(
+            RexEdge::RET_WRITES,
+            {
+                {LINE_NUMBER}
+            }
+        ),
+	//NEW!
+
         TASchemeAttribute(
             RexEdge::PUBLISH,
             {

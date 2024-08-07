@@ -1692,7 +1692,13 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
         for (auto rhsItem : rhs) {
 
             if (isReturnID(rhsItem)) {
-                addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
+                //addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
+		//Note it is the same as below - returns now have a line number too. 
+                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
+ //               addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES); 
+                edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number)); //NEW!
+   //             addOrUpdateEdge(lhsItem, var, RexEdge::LINE_NUMBER);
+
             } else {
                 auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
                 
