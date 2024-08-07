@@ -1692,23 +1692,17 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
         for (auto rhsItem : rhs) {
 
             if (isReturnID(rhsItem)) {
-                //addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
 		//Note it is the same as below - returns now have a line number too. 
-                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
- //               addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES); 
+//                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
+		  auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RW_DESTINATION);
                 edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number)); //NEW!
-   //             addOrUpdateEdge(lhsItem, var, RexEdge::LINE_NUMBER);
 
             } else {
-                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
-                
-	//                addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
-                
+//                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+  //Incorrect on account of single varWrite fact possibly having multiple CFG blocks; amended to be the source specifically. 
+		auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VW_SOURCE);              
                   //addAttribute of extracted line number here 
-                //edge->addMultiAttribute("NUMBER: ", std::to_string(line_number)); //NEW!
 		edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));                
-//		addOrUpdateEdge(rhsItem, var, RexEdge::LINE_NUMBER);
-//Possibly store line number in a mapping also?
             	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
         }
 
