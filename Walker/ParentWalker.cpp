@@ -1693,17 +1693,17 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
 
             if (isReturnID(rhsItem)) {
 		//Note it is the same as below - returns now have a line number too. 
-//                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
-		  auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RW_DESTINATION);
-                edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number)); //NEW!
+                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RET_WRITES);
+//		  auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::RW_DESTINATION);
+  //              edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number)); //NEW!
 
             } else {
-//                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
+                auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VAR_WRITES);
   //Incorrect on account of single varWrite fact possibly having multiple CFG blocks; amended to be the source specifically. 
-		auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VW_SOURCE);              
+//		auto edge = addOrUpdateEdge(rhsItem, var, RexEdge::VW_SOURCE);              
                   //addAttribute of extracted line number here 
-		edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));                
-            	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
+//		edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));                
+    //        	llvm::errs() << "Added attribute LINE_NUMBER: " << line_number << " to edge between " << rhsItem << " and " << var << "\n";  // Debugging statement    
         }
 
 
@@ -1718,11 +1718,13 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                     // Differentiate return node write and normal variable write
                     if (isReturnID(rhsItem)) {    
                         string cfgSrcNodeID = rhsItem.substr(0, rhsItem.size()-RETURN_SUFFIX.size()) + ":CFG:0";
-                        addOrUpdateEdge(rhsItem, cfgSrcNodeID, RexEdge::RW_SOURCE);
-                        addOrUpdateEdge(var, cfgNodeID, RexEdge::RW_DESTINATION);
+                        auto edge = addOrUpdateEdge(rhsItem, cfgSrcNodeID, RexEdge::RW_SOURCE);
+                        edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));
+			addOrUpdateEdge(var, cfgNodeID, RexEdge::RW_DESTINATION);
                     } else {
-                        addOrUpdateEdge(rhsItem, cfgNodeID, RexEdge::VW_SOURCE);
-                        addOrUpdateEdge(var, cfgNodeID, RexEdge::VW_DESTINATION);
+                        auto edge = addOrUpdateEdge(rhsItem, cfgNodeID, RexEdge::VW_SOURCE);
+                        edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));
+			addOrUpdateEdge(var, cfgNodeID, RexEdge::VW_DESTINATION);
                     }
                     
                 } else {
