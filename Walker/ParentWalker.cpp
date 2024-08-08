@@ -1718,9 +1718,9 @@ void ParentWalker::recordFunctionVarUsage(const FunctionDecl *decl,
                     // Differentiate return node write and normal variable write
                     if (isReturnID(rhsItem)) {    
                         string cfgSrcNodeID = rhsItem.substr(0, rhsItem.size()-RETURN_SUFFIX.size()) + ":CFG:0";
-                        auto edge = addOrUpdateEdge(rhsItem, cfgSrcNodeID, RexEdge::RW_SOURCE);
-                        edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));
-			addOrUpdateEdge(var, cfgNodeID, RexEdge::RW_DESTINATION);
+                        addOrUpdateEdge(rhsItem, cfgSrcNodeID, RexEdge::RW_SOURCE);
+			auto edge = addOrUpdateEdge(var, cfgNodeID, RexEdge::RW_DESTINATION);
+			edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));
                     } else {
                         auto edge = addOrUpdateEdge(rhsItem, cfgNodeID, RexEdge::VW_SOURCE);
                         edge->RexEdge::addSingleAttribute("LINE_NUMBER", std::to_string(line_number));
